@@ -1,0 +1,88 @@
+/* Default styling for the navbar */
+.navbar {
+    background-color: rgb(16, 8, 58);
+    width: 100vw;
+    height: 10vh;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
+
+.navbar .logo {
+    margin: 20px;
+}
+
+.navbar .nav-links {
+    height: 100%;
+    width: 30%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.navbar .logout-btn {
+    margin: 20px;
+}
+
+/* Hide hamburger menu by default */
+.navbar .hamburger {
+    display: none;
+}
+
+/* Media Query for Tablets */
+@media screen and (max-width: 1024px) {
+    .navbar .nav-links {
+        width: 70%; /* Adjust width for more space */
+        justify-content: space-around; /* Add spacing between links */
+    }
+}
+
+/* Media Query for Smaller Screens */
+@media screen and (max-width: 768px) {
+    .navbar .nav-links,
+    .navbar .logout-btn {
+        display: none; /* Hide navigation links and logout button */
+    }
+
+    .navbar .hamburger {
+        display: block; /* Show hamburger menu */
+        margin: 20px;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    /* Dropdown menu for smaller screens */
+    .navbar.active .nav-links {
+        display: flex; /* Show navigation links */
+        flex-direction: column;
+        position: absolute;
+        top: 10vh;
+        right: 0;
+        width: 50%;
+        background-color: rgb(16, 8, 58);
+        height: calc(100vh - 10vh);
+        justify-content: flex-start;
+        align-items: center;
+        padding-top: 20px;
+    }
+
+    .navbar.active .nav-links a {
+        margin: 10px 0;
+        font-size: 18px;
+    }
+
+    /* Add Logout button to the dropdown */
+    .navbar.active .logout-btn {
+        display: block; /* Show logout button in dropdown */
+        margin: 20px 0;
+        font-size: 18px;
+        color: white;
+        cursor: pointer;
+    }
+}
