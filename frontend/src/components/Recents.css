@@ -1,0 +1,177 @@
+.dashboard-bottom{
+    width: 100vw;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+.dashboard-bottom .recents{
+    width: 45%;
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    align-items: center;
+    justify-content: space-around;
+}
+.dashboard-bottom .recents h4{
+    width: 100%;
+    height: 12%;
+    display: flex;
+    align-items: center;
+    margin-left: 25px;
+}
+.dashboard-bottom .recents .recents-container{
+    width: 100%;
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+}
+.dashboard-bottom .recents .recents-container .recents-cards{
+    width: 50%;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.dashboard-bottom .recents .recents-container .recents-cards .icon{
+    width: 35px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgba(16, 8, 58, 0.5);
+    background-color: rgb(215, 242, 250);
+}
+.dashboard-bottom .system{
+    width: 45%;
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    align-items: center;
+    justify-content: space-around;
+}
+.dashboard-bottom .system h4{
+    width: 100%;
+    height: 12%;
+    display: flex;
+    align-items: center;
+    margin-left: 25px;
+}
+.dashboard-bottom .system .system-container{
+    width: 100%;
+    height: 80%;
+    display: flex;
+    flex-direction: column; 
+}
+.dashboard-bottom .system .system-container .card{
+    width: 100%;
+    height: 25%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.dashboard-bottom .system .system-container .card p{
+    margin-left: 25px;
+}
+.dashboard-bottom .system .system-container .card .tag{
+    width: 100px;
+    height: 30px;
+    border-radius: 50px;
+    background-color: rgb(14, 174, 30, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 35px;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+    .dashboard-bottom {
+        flex-direction: column;
+        align-items: center;
+        height: auto;
+        padding: 20px 0;
+    }
+
+    .dashboard-bottom .recents, 
+    .dashboard-bottom .system {
+        width: 90%;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-bottom .recents .recents-container .recents-cards,
+    .dashboard-bottom .system .system-container .card {
+        width: 90%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-bottom .recents, 
+    .dashboard-bottom .system {
+        width: 95%;
+    }
+
+    .dashboard-bottom .recents .recents-container .recents-cards {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 10px 0;
+        width: 100%;
+    }
+
+    .dashboard-bottom .recents .recents-container .recents-cards .icon {
+        margin-right: 10px;
+        width: 30px;
+        height: 30px;
+    }
+
+    .dashboard-bottom .system .system-container .card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        height: auto;
+        padding: 10px;
+        width: 100%;
+    }
+
+    .dashboard-bottom .system .system-container .card .tag {
+        margin: 5px 0;
+        text-align: center;
+        min-width: 80px;
+    }
+}
+
+@media (max-width: 480px) {
+    h4 {
+        font-size: 16px;
+    }
+
+    .dashboard-bottom .recents .recents-container .recents-cards {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 0;
+    }
+
+    .dashboard-bottom .recents .recents-container .recents-cards .icon {
+        margin-bottom: 10px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .dashboard-bottom .system .system-container .card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 8px;
+    }
+
+    .dashboard-bottom .system .system-container .card .tag {
+        margin-top: 8px;
+    }
+}
+

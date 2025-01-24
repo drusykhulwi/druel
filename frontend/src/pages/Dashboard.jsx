@@ -1,6 +1,7 @@
 import Navbar from "../components/Navbar"
 import { FaChartBar, FaFileAlt, FaUserFriends, FaFileMedical } from 'react-icons/fa';
 import './Dashboard.css';
+import Recents from "../components/Recents";
 
 function Dashboard() {
   return (
@@ -45,6 +46,7 @@ function Dashboard() {
           </div> 
         </div>
       </div>
+      <Recents/>
     </div>
   )
 }
