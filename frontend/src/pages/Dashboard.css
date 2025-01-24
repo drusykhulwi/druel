@@ -1,20 +1,25 @@
-.dashboard{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-h1{
+
+h1 {
     margin-left: 32px;
-    color: rgb(16, 8, 58, 0.8);
+    margin-top: 40px;
+    margin-bottom: 20px;
+    color: rgba(16, 8, 58, 0.8);
 }
-.dashboard .dashboard-container{
+
+.dashboard .dashboard-container {
     width: 100vw;
     height: 17vh;
     display: flex;
     justify-content: space-around;
     align-items: center;
 }
-.dashboard .dashboard-container .dashboard-cards{
+
+.dashboard .dashboard-container .dashboard-cards {
     width: 20%;
     height: 100%;
     display: flex;
@@ -23,15 +28,57 @@ h1{
     border-radius: 5px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
-.dashboard .dashboard-container .dashboard-cards .card{
-    margin: 20px;    
-}
-.dashboard .dashboard-container .dashboard-cards .card h5{
-    color:  rgb(16, 8, 58, 0.5);
-}
-h3{
-  color: rgb(16, 8, 58);
-}
-.icon{
+
+.dashboard .dashboard-container .dashboard-cards .card {
     margin: 20px;
+}
+
+.dashboard .dashboard-container .dashboard-cards .card h5 {
+    color: rgba(16, 8, 58, 0.5);
+}
+
+h3 {
+    color: rgb(16, 8, 58);
+}
+
+.icon {
+    margin: 20px;
+}
+
+/* Responsive Styles */
+
+/* For tablets (max-width: 1024px) */
+@media screen and (max-width: 1024px) {
+    .dashboard .dashboard-container {
+        flex-wrap: wrap;
+        height: auto; /* Allow height to adjust dynamically */
+        justify-content: center;
+    }
+
+    .dashboard .dashboard-container .dashboard-cards {
+        width: 40%; /* Reduce card width for better fit */
+        margin-bottom: 20px; /* Add spacing between rows */
+    }
+}
+
+/* For smaller screens (max-width: 768px) */
+@media screen and (max-width: 768px) {
+    .dashboard .dashboard-container {
+        flex-direction: column; /* Stack cards vertically */
+        align-items: center;
+    }
+
+    .dashboard .dashboard-container .dashboard-cards {
+        width: 80%; /* Increase card width for readability */
+        margin-bottom: 20px; /* Add spacing between cards */
+    }
+
+    .dashboard .dashboard-container .dashboard-cards .card h5,
+    .dashboard .dashboard-container .dashboard-cards .card h3 {
+        text-align: center; /* Center-align text for smaller screens */
+    }
+
+    .icon {
+        margin: 10px auto; /* Center-align the icon */
+    }
 }
