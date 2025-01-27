@@ -1,5 +1,6 @@
 import Navbar from "../components/Navbar"
 import { FaDownload, FaPrint } from 'react-icons/fa';
+import "./Report.css";
 
 function Report() {
   return (
@@ -9,13 +10,13 @@ function Report() {
         <div className="report-header">
           <h2>Report Generation</h2>
           <div className="reportbtns">
-            <button><FaPrint/>Print</button>
-            <button><FaDownload/>Download PDF</button>
+            <button className="print-btn"><FaPrint/>Print</button>
+            <button className="download-btn"><FaDownload/>Download PDF</button>
           </div>
         </div>
         <div className="report-content">
           <div className="patient-information">
-            <h4>Patient Information</h4>
+            <h3>Patient Information</h3>
             <div className="info">
               <h5>Patient ID</h5>
               <p>12345</p>
@@ -28,20 +29,21 @@ function Report() {
               <h5>Report Generated</h5>
               <p>2024-03-15 04:30</p>
             </div>
+            <hr />
           </div>
           <div className="analysis-results">
-            <h4>Analysis Results</h4>
+            <h3>Analysis Results</h3>
             <div className="info">
-              <h5>Patient ID</h5>
-              <p>12345</p>
+              <h5>Primary Findings</h5>
+              <p>Normal tissue structure with no significant abnormalities</p>
             </div>
             <div className="info">
-              <h5>Scan Date</h5>
-              <p>2024-03-15</p>
+              <h5>Confidence Score</h5>
+              <p>98%</p>
             </div>
             <div className="info">
-              <h5>Report Generated</h5>
-              <p>2024-03-15 04:30</p>
+              <h5>Image quality</h5>
+              <p>High</p>
             </div>
             <div className="info">
               <h5>Feature 1</h5>
@@ -55,15 +57,17 @@ function Report() {
               <h5>Feature 3</h5>
               <p>No suspicious masses or abnormalities detected</p>
             </div>
+            <hr/>
           </div>
           <div className="additional-notes">
-            <h4>Additional Notes</h4>
+            <h3>Additional Notes</h3>
             <form>
-              <textarea placeholder="Add any additional notes or observations."/>
+              <textarea placeholder="Add any additional notes or observations..."></textarea>
             </form>
+            <hr/>
           </div>
           <div className="disclaimer">
-            <h5>AI Analysis Disclaimer</h5>
+            <h3>AI Analysis Disclaimer</h3>
             <p>
               This report was generated using Druel AI Automated Ultrasound Interpretation system. While our AI system provides highly accurate analysis, 
               all findings should be reviewed and verified by a qualified healthcare professional. This report is not substitute for professional medical advice or diagnosis.
