@@ -8,3 +8,5 @@ __pycache__/
 
 # Ignore Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+
+backend/node_modules/
