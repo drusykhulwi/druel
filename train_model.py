@@ -34,14 +34,22 @@ model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accur
 datagen = ImageDataGenerator(rescale=1./255, validation_split=0.2)
 
 train_data = datagen.flow_from_directory(
-    "testimages", target_size=(256, 256), color_mode="grayscale",
+    "C:/Users/User/Desktop/Projects/druel/testimages", 
+    target_size=(256, 256), color_mode="grayscale",
     batch_size=32, class_mode="categorical", subset="training", seed=seed_value
 )
 
 val_data = datagen.flow_from_directory(
-    "testimages", target_size=(256, 256), color_mode="grayscale",
+    "C:/Users/User/Desktop/Projects/druel/testimages",
+    target_size=(256, 256), color_mode="grayscale",
     batch_size=32, class_mode="categorical", subset="validation", seed=seed_value
 )
+print(f"Found {train_data.samples} training images in {len(train_data.class_indices)} classes.")
+print(f"Found {val_data.samples} validation images in {len(val_data.class_indices)} classes.")
 
 # Step 5: Train the Model
 model.fit(train_data, validation_data=val_data, epochs=10)
+
+# Step 6: Save the trained model
+model.save("saved_model.h5")  # <-- THIS LINE FIXES THE FILE NOT FOUND ERROR
+print("Model saved as saved_model.h5")
