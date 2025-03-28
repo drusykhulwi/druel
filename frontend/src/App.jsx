@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import Analysis from './pages/Analysis';
 import Report from './pages/Report';
+import Login from './pages/Login';
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/Upload" element={<Upload />} className="route-name"/>
         <Route path="/Analysis" element={<Analysis className="route-name"/>} />
         <Route path="/Report" element={<Report className="route-name"/>} />
+        <Route path="/Login" element={<Login className="route-name"/>} />
       </Routes>
     </Router>
   )

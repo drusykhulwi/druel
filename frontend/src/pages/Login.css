@@ -1,10 +1,10 @@
-body {
+body{
     margin: 0;
     overflow: hidden;
     padding: 0;
     box-sizing: border-box;
 }
-.login {
+.login{
     width: 100vw;
     height: 100vh;
     display: flex;
@@ -12,9 +12,9 @@ body {
     align-items: center;
     background-color: rgb(16, 8, 58);
 }
-.login .login-container {
+.login .login-container{
     width: 40%;
-    height: 65%;
+    height: 75%;
     border-radius: 10px;
     border: none;
     background-color: #ffffff;
@@ -22,7 +22,7 @@ body {
     flex-direction: column;
     align-items: center;
 }
-.login .login-container .login-header {
+.login .login-container .login-header{
     width: 100%;
     height: 20%;
     border-radius: 10px;
@@ -32,16 +32,16 @@ body {
     align-items: center;
 }
 h1 {
-    font-size: 32px;
+    font-size: 28px;
     place-items: center;
     color: rgb(16, 8, 58);
     padding-top: 20px;
 }
-h4 {
+h4{
     padding: 0;
     margin: 0;
 }
-.login .login-container .login-form {
+.login .login-container .login-form{
     height: 50%;
     width: 100%;
     display: flex;
@@ -49,17 +49,17 @@ h4 {
     align-items: center;
     justify-content: space-evenly;
 }
-.login .login-container .login-form .login-input {
+.login .login-container .login-form .login-input{
     width: 70%;
     height: 35px;
-    border: 1.5px solid rgba(128, 128, 128, 0.3);
+    border: 1.5px solid rgb(128, 128, 128, 0.3);
     border-radius: 5px;
 }
-.login-input::placeholder {
-    color: rgba(128, 128, 128, 0.5);
+.login-input::placeholder{
+    color: rgb(128, 128, 128, 0.5);
     padding-left: 9px;
 }
-.login .login-container .login-form .login-btn {
+.login .login-container .login-form .login-btn{
     width: 70%;
     height: 35px;
     border: none;
@@ -67,35 +67,6 @@ h4 {
     background-color: rgb(16, 8, 58);
     color: #ffffff;
 }
-p {
-    color: rgba(16, 8, 58, 0.8);
-}
-
-/* Media Queries for Responsiveness */
-@media screen and (max-width: 768px) {
-    .login .login-container {
-        width: 60%;
-        height: 70%;
-    }
-    h1 {
-        font-size: 28px;
-    }
-    .login .login-container .login-form .login-input,
-    .login .login-container .login-form .login-btn {
-        width: 80%;
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .login .login-container {
-        width: 90%;
-        height: 80%;
-    }
-    h1 {
-        font-size: 24px;
-    }
-    .login .login-container .login-form .login-input,
-    .login .login-container .login-form .login-btn {
-        width: 90%;
-    }
+p{
+    color: rgb(16, 8, 58, 0.8);
 }

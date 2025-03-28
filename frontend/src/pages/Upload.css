@@ -151,49 +151,9 @@
 .uploads .uploads-container .upload .patient-details .upload-btn button:hover {
     background-color: rgb(40, 30, 90);
 }
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-    .uploads .uploads-container .upload {
-        width: 95%;
-        padding: 15px;
-    }
-
-    .uploads .uploads-container .upload .upload-container {
-        padding: 15px;
-    }
-
-    .uploads .uploads-container .upload .patient-details .inputs {
-        gap: 15px;
-        flex-direction: column; /* Stack inputs vertically on smaller screens */
-    }
-
-    .uploads .uploads-container .upload .patient-details .notes-input textarea {
-        height: 80px;
-    }
-
-    .uploads .uploads-container .upload .patient-details .upload-btn {
-        justify-content: center;
-    }
+.supported{
+    font-size: 12px;
+    font-weight: 600;
 }
 
-@media (max-width: 480px) {
-    h1 {
-        font-size: 20px;
-        text-align: center;
-    }
 
-    .uploads .uploads-container .upload .upload-container .cont p {
-        font-size: 14px;
-    }
-
-    .uploads .uploads-container .upload .patient-details .inputs .input input {
-        font-size: 12px;
-    }
-
-    .uploads .uploads-container .upload .patient-details .upload-btn button {
-        width: 120px;
-        height: 40px;
-        font-size: 14px;
-    }
-}

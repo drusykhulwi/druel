@@ -16,8 +16,14 @@ function Upload() {
                 <FaUpload/>
               </div>
               <p>Drag and drop your ultrasound images here, or</p>
-              <button>Browse Files</button>
-              <p>Supported formats DICOM, JPG, PNG</p>
+              <input
+                type="file"
+                accept=".jpg, .jpeg, .png, .dicom"
+                className="upload-input"
+                id="file-upload"
+                placeholder="Browse files"
+              />
+              <p className="supported">Supported formats DICOM, JPG, PNG</p>
             </div>
           </div>
           <form className="patient-details">
