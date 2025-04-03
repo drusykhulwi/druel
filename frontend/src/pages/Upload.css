@@ -3,47 +3,53 @@
     padding: 0;
     box-sizing: border-box;
 }
-
-.uploads .uploads-container {
+.uploads{
     width: 100vw;
     height: 100vh;
+}
+.uploads .uploads-container {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     background-color: rgb(239, 239, 240);
-    padding: 20px;
+}
+.uploads .uploads-container h1{
+    height: 10%;
+    /* width: 100%; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .uploads .uploads-container .upload {
     width: 80%;
-    max-width: 900px; /* Ensures the layout doesn't stretch on large screens */
-    height: auto;
+    height: 85%;
     padding: 20px;
     display: flex;
     flex-direction: column;
     background-color: white;
     border-radius: 20px;
     align-items: center;
+    justify-content: space-between;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .uploads .uploads-container .upload .upload-container {
-    width: 100%;
-    height: auto;
+    width: 50%;
+    height: 40%;
     border: 1px dashed grey;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    margin-bottom: 20px;
     text-align: center;
 }
 
 .uploads .uploads-container .upload .upload-container .cont {
-    height: auto;
+    height: 100%;
     width: 100%;
-    max-width: 500px;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -51,28 +57,15 @@
 }
 
 .uploads .uploads-container .upload .upload-container .cont .icons {
-    font-size: 40px;
+    font-size: 30px;
     color: rgb(210, 215, 211);
-    margin-bottom: 10px;
 }
 
-.uploads .uploads-container .upload .upload-container .cont button {
-    width: 120px;
-    height: 45px;
-    background-color: rgb(16, 8, 58);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
 
-.uploads .uploads-container .upload .upload-container .cont button:hover {
-    background-color: rgb(40, 30, 90);
-}
 
 .uploads .uploads-container .upload .patient-details {
     width: 100%;
+    height: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;

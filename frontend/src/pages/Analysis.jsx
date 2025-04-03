@@ -17,7 +17,7 @@ function Analysis() {
           </div>
           <div className="analytics">
             <div className="analysis-summary">
-              <h4>Analysis Summary</h4>
+              <h4 className="an-title">Analysis Summary</h4>
               <div className="texts">
                 <p>Confidence score</p>
                 <span>98%</span>
@@ -41,21 +41,21 @@ function Analysis() {
                   <h4>Feature 1</h4>
                   <span>95% confidence</span>
                 </div>
-                <p>Potential abnormality detected in upper right quadrant.</p>
+                <p className="textp">Potential abnormality detected in upper right quadrant.</p>
               </div>
               <div className="feature">
                   <div className="texts">
                     <h4>Feature 2</h4>
                     <span>98% confidence</span>
                   </div>
-                  <p>Normal tissue structure identified.</p>
+                  <p className="textp">Normal tissue structure identified.</p>
               </div>
               <div className="feature">
                 <div className="texts">
                   <h4>Feature 3</h4>
                   <span>99% confidence</span>
                 </div>
-                <p>Clear Organ Boundaries visible.</p>
+                <p className="textp">Clear Organ Boundaries visible.</p>
               </div>
             </div>
           </div>

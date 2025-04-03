@@ -37,10 +37,6 @@ function Upload() {
                 <input type="date" placeholder="Enter Patient ID" className="input-date" />
               </div>
             </div>
-            <div className="notes-input">
-              <label>Notes</label>
-              <textarea type="text" placeholder="Add any additional notes..." className="input-placeholder"/>
-            </div>
             <div className="upload-btn">
               <button>Upload and Analyze</button>
             </div>
