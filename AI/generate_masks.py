@@ -2,8 +2,8 @@ import os
 import cv2
 import numpy as np
 
-image_folder = './dataset/trans_thalamic_images'
-mask_folder = './dataset/trans_thalamic_masks'
+image_folder = './dataset/Trans_thalamic_images'
+mask_folder = './dataset/Trans_thalamic_masks'
 
 os.makedirs(mask_folder, exist_ok=True)
 
@@ -45,4 +45,4 @@ for filename in os.listdir(image_folder):
             save_path = os.path.join(mask_folder, filename)
             cv2.imwrite(save_path, mask)
 
-print(f"✅ Masks generated for all images in {mask_folder}")
+print(f"Masks generated for all images and added to {mask_folder}")
