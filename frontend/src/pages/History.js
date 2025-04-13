@@ -46,7 +46,7 @@ const History = () => {
   ]);
 
   const [selectedScan, setSelectedScan] = useState(historyItems[0]);
-
+  
   const handleSelectScan = (scan) => {
     setSelectedScan(scan);
   };
