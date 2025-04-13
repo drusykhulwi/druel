@@ -1,8 +1,10 @@
-// src/components/Dashboard.js
 import React from 'react';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../context/AuthContext';
 
-const Dashboard = () => {
+
+function Dashboard () {
+  const { currentUser } = useAuth();
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Navigation Bar */}
@@ -11,6 +13,7 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="container mx-auto p-6">
         <h2 className="text-xl font-bold text-gray-800 mb-6">Dashboard</h2>
+        <h4>Welcome, {currentUser.username}!</h4>
 
         {/* Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">

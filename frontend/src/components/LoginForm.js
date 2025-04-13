@@ -1,15 +1,56 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 
-const LoginForm = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+// Configure axios to include credentials with requests
+axios.defaults.withCredentials = true;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Login attempt with:', username, password);
-    // Handle login logic here
+function LoginForm() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
   };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await axios.post('http://localhost:5000/api/login', formData);
+      
+      if (response.data.success) {
+        // Store user info in localStorage (optional, depending on your strategy)
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        // Redirect to dashboard
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      setError(error.response?.data?.error || 'Login failed. Please try again.');
+      console.error('Login error:', error);
+    } finally {
+      setLoading(false);
+    }
+};
+// const LoginForm = () => {
+//   const [username, setUsername] = useState('');
+//   const [password, setPassword] = useState('');
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+//     console.log('Login attempt with:', username, password);
+//     // Handle login logic here
+//   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -18,7 +59,9 @@ const LoginForm = () => {
           <h1 className="text-2xl font-bold text-druel-blue">Druel</h1>
           <p className="text-sm text-gray-500">AI Automated Ultrasound Interpretation</p>
         </div>
-        
+
+        {error && <div className="error-message">{error}</div>}
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <div className="flex items-center border rounded-md px-3 py-2">
@@ -26,11 +69,14 @@ const LoginForm = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               <input
-                type="text"
-                placeholder="Username"
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="Email"
                 className="flex-grow focus:outline-none"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
           </div>
@@ -42,19 +88,23 @@ const LoginForm = () => {
               </svg>
               <input
                 type="password"
+                id="password"
+                name="password"
                 placeholder="Password"
                 className="flex-grow focus:outline-none"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={handleChange}
+                required
               />
             </div>
           </div>
           
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-2 px-4 bg-druel-blue hover:bg-druel-light-blue text-white font-semibold rounded-md transition duration-200"
           >
-            Sign In
+            {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
         

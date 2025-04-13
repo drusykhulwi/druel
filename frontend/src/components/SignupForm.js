@@ -1,17 +1,64 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 
-const SignupForm = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+function SignupForm() {
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Signup attempt with:', username, email, password);
-    // Handle signup logic here
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
   };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    // Simple validation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+    
+    try {
+      const response = await axios.post('http://localhost:5000/api/signup', formData);
+      
+      if (response.data.success) {
+        // Store user info in localStorage (optional)
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        // Redirect to dashboard
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      setError(error.response?.data?.error || 'Signup failed. Please try again.');
+      console.error('Signup error:', error);
+    } finally {
+      setLoading(false);
+    }
+};  
+// const SignupForm = () => {
+//   const [username, setUsername] = useState('');
+//   const [email, setEmail] = useState('');
+//   const [password, setPassword] = useState('');
+//   const [confirmPassword, setConfirmPassword] = useState('');
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+//     console.log('Signup attempt with:', username, email, password);
+//     // Handle signup logic here
+//   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -21,6 +68,8 @@ const SignupForm = () => {
           <p className="text-sm text-gray-500">AI Automated Ultrasound Interpretation</p>
         </div>
         
+        {error && <div className="error-message">{error}</div>}
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <div className="flex items-center border rounded-md px-3 py-2">
@@ -31,8 +80,11 @@ const SignupForm = () => {
                 type="text"
                 placeholder="Username"
                 className="flex-grow focus:outline-none"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -46,8 +98,11 @@ const SignupForm = () => {
                 type="email"
                 placeholder="Email"
                 className="flex-grow focus:outline-none"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -61,8 +116,11 @@ const SignupForm = () => {
                 type="password"
                 placeholder="Password"
                 className="flex-grow focus:outline-none"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -76,17 +134,21 @@ const SignupForm = () => {
                 type="password"
                 placeholder="Confirm Password"
                 className="flex-grow focus:outline-none"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
               />
             </div>
           </div>
           
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-2 px-4 bg-druel-blue hover:bg-druel-light-blue text-white font-semibold rounded-md transition duration-200"
           >
-            Sign Up
+            {loading ? 'Creating account...' : 'Sign Up'}
           </button>
         </form>
         
