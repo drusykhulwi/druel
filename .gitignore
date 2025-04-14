@@ -10,3 +10,4 @@ __pycache__/
 .ipynb_checkpoints/
 
 backend/node_modules/
+backend/.env
