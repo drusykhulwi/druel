@@ -121,6 +121,26 @@ export default function Upload() {
               </div>
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label htmlFor="gest-age" className="block text-sm font-medium text-gray-700 mb-1">Gestational Age</label>
+              <div className="relative">
+                <input
+                  id="gest-age"
+                  type="number"
+                  className="w-full p-2 pl-8 border border-gray-300 rounded-md"
+                  placeholder="Enter Gestational Age in weeks"
+                  // value={gestage}
+                  // onChange={(e) => setPatientId(e.target.value)}
+                />
+                <span className="absolute left-2 top-2.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </div>
           
           <div className="mb-4">
             <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">Notes:</label>
