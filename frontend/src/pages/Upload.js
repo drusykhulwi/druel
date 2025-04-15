@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { UploadCloud, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // React Router import
 import Navbar from '../components/Navbar';
 
 export default function Upload() {
+  const navigate = useNavigate(); // Initialize navigate
   const [image, setImage] = useState(null);
   const [dragging, setDragging] = useState(false);
   const [patientId, setPatientId] = useState('');
   const [scanDate, setScanDate] = useState('');
   const [notes, setNotes] = useState('');
+  const [planeType, setPlaneType] = useState('trans-thalamic'); // Add state for plane type
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -45,12 +48,45 @@ export default function Upload() {
     reader.readAsDataURL(file);
   };
 
+  // Function to handle form submission and redirection
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    // Determine the route based on the selected plane type
+    let targetRoute;
+    switch (planeType) {
+      case 'trans-thalamic':
+        targetRoute = '/transthalamic';
+        break;
+      case 'trans-ventricular':
+        targetRoute = '/transventricular';
+        break;
+      case 'trans-cerebellum':
+        targetRoute = '/transcerebellum';
+        break;
+      default:
+        targetRoute = '/transthalamic';  // Default route
+    }
+    
+    // Create search params for data passing
+    const searchParams = new URLSearchParams();
+    if (patientId) searchParams.append('patientId', patientId);
+    if (scanDate) searchParams.append('scanDate', scanDate);
+    if (notes) searchParams.append('notes', notes);
+    
+    // Redirect to the appropriate route with query parameters
+    navigate({
+      pathname: targetRoute,
+      search: searchParams.toString()
+    });
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       
       <div className="container mx-auto p-6 max-w-3xl">
-        <div className="bg-white rounded-md shadow-sm">
+        <form onSubmit={handleSubmit} className="bg-white rounded-md shadow-sm">
           <h2 className="text-lg font-medium mb-4">Upload Ultrasound Image</h2>
           
           <div 
@@ -68,6 +104,7 @@ export default function Upload() {
                 <UploadCloud className="h-12 w-12 text-gray-400 mb-2" />
                 <p className="text-gray-500 text-center mb-2">Drag and drop your ultrasound image here, or</p>
                 <button 
+                  type="button"
                   className="bg-druel-blue text-white px-4 py-2 rounded-md hover:bg-druel-light-blue transition-colors"
                 >
                   Browse Files
@@ -140,6 +177,26 @@ export default function Upload() {
                 </span>
               </div>
             </div>
+            <div>
+              <label htmlFor="plane-type" className="block text-sm font-medium text-gray-700 mb-1">Plane Type:</label>
+              <div className="relative">
+                <select
+                  id="plane-type"
+                  className="w-full p-2 pl-8 border border-gray-300 rounded-md"
+                  value={planeType}
+                  onChange={(e) => setPlaneType(e.target.value)}
+                >
+                  <option value="trans-thalamic">Trans Thalamic</option>
+                  <option value="trans-ventricular">Trans Ventricular</option>
+                  <option value="trans-cerebellum">Trans Cerebellum</option>
+                </select>
+                <span className="absolute left-2 top-2.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                </span>
+              </div>
+            </div>
           </div>
           
           <div className="mb-4">
@@ -162,11 +219,14 @@ export default function Upload() {
           </div>
           
           <div className="flex justify-end">
-            <button className="bg-druel-blue text-white px-4 py-2 rounded-md hover:bg-druel-light-blue transition-colors">
+            <button 
+              type="submit" 
+              className="bg-druel-blue text-white px-4 py-2 rounded-md hover:bg-druel-light-blue transition-colors"
+            >
               Submit and Analyze
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
