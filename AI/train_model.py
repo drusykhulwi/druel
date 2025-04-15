@@ -58,7 +58,7 @@ def load_training_data(image_folder, mask_folder):
 def train_unet_model(image_folder, mask_folder):
     X, y = load_training_data(image_folder, mask_folder)
     model = build_unet()
-    checkpoint = ModelCheckpoint("unet_brain_seg.h5", monitor='val_loss', save_best_only=True)
+    checkpoint = ModelCheckpoint("./models/unet_brain_seg.h5", monitor='val_loss', save_best_only=True)
     model.fit(X, y, validation_split=0.2, epochs=20, batch_size=8, callbacks=[checkpoint])
     return model
 

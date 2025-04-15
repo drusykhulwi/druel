@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 # Load trained model once
 model = build_unet()
-model.load_weights("unet_brain_seg.h5")
+model.load_weights("./models/unet_brain_seg.h5")
 
 # Reference measurements for gestational ages 18-24 weeks
 REFERENCE_DATA = {
