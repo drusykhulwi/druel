@@ -1,5 +1,5 @@
 // models/ScanModel.js
-const { pool } = require('../db');
+const { pool } = require('../server');
 const fs = require('fs').promises;
 const path = require('path');
 

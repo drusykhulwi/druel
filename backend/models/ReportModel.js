@@ -1,5 +1,5 @@
 // models/ReportModel.js
-const { pool } = require('../db');
+const { pool } = require('../server');
 const fs = require('fs').promises;
 
 class ReportModel {
