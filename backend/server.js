@@ -348,6 +348,126 @@ app.post('/api/scans', async (req, res) => {
   }
 });
 
+// DASHBOARD METRICS ENDPOINTS
+
+// Get dashboard metrics
+app.get('/api/metrics', async (req, res) => {
+  try {
+    // Get total scans count
+    const [scanRows] = await pool.query('SELECT COUNT(*) as count FROM scans');
+    const totalScans = scanRows[0].count;
+    
+    // Get active patients (patients with scans in the last 30 days)
+    const [patientRows] = await pool.query(`
+      SELECT COUNT(DISTINCT patient_id) as count 
+      FROM scans 
+      WHERE scan_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+    `);
+    const activePatients = patientRows[0].count;
+    
+    // Get total reports generated
+    const [reportRows] = await pool.query('SELECT COUNT(*) as count FROM ai_reports');
+    const reportsGenerated = reportRows[0].count;
+
+    // Get average confidence score (analysis accuracy)
+    const [accuracyRows] = await pool.query('SELECT AVG(confidence_score) as avg_score FROM ai_reports');
+    const analysisAccuracy = accuracyRows[0].avg_score || 0;
+    
+    res.json({
+      totalScans,
+      activePatients,
+      reportsGenerated,
+      analysisAccuracy
+    });
+  } catch (error) {
+    console.error('Error fetching metrics:', error);
+    res.status(500).json({ error: 'Failed to fetch metrics' });
+  }
+});
+
+// Get recent activities for dashboard
+app.get('/api/recent-activities', async (req, res) => {
+  try {
+    // Get recent scan activities with report generation
+    const [activities] = await pool.query(`
+      SELECT 
+        p.patient_id,
+        ar.report_generated_date,
+        ar.is_normal,
+        ar.primary_findings
+      FROM patients p
+      JOIN scans s ON p.patient_id = s.patient_id
+      JOIN ai_reports ar ON s.scan_id = ar.scan_id
+      ORDER BY ar.report_generated_date DESC
+      LIMIT 5
+    `);
+
+    // Format the activities for frontend display
+    const formattedActivities = activities.map(activity => {
+      // Calculate time ago
+      const reportDate = new Date(activity.report_generated_date);
+      const now = new Date();
+      const diffHours = Math.floor((now - reportDate) / (1000 * 60 * 60));
+      const timeAgo = diffHours > 24 
+        ? `${Math.floor(diffHours / 24)}d ago` 
+        : `${diffHours}h ago`;
+      
+      return {
+        patientId: activity.patient_id,
+        activity: 'Ultrasound Analysis Completed',
+        status: activity.is_normal ? 'Normal' : 'Abnormal',
+        findings: activity.primary_findings,
+        timeAgo
+      };
+    });
+    
+    res.json(formattedActivities);
+  } catch (error) {
+    console.error('Error fetching recent activities:', error);
+    res.status(500).json({ error: 'Failed to fetch recent activities' });
+  }
+});
+
+// Get system status for dashboard
+app.get('/api/system-status', async (req, res) => {
+  try {
+    // Check AI model availability (example: query processing times)
+    const [processingTimes] = await pool.query(`
+      SELECT AVG(processing_time) as avg_time 
+      FROM ai_reports 
+      WHERE report_generated_date >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+    `);
+    
+    const avgProcessingTime = processingTimes[0].avg_time || 0;
+
+     // Check report generation (example: recent successful reports)
+    const [recentReports] = await pool.query(`
+      SELECT COUNT(*) as count 
+      FROM ai_reports 
+      WHERE report_generated_date >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+    `);
+    
+    const recentReportCount = recentReports[0].count || 0;
+    
+    // Determine status based on metrics
+    const aiModelStatus = avgProcessingTime < 5 ? 'Operational' : 'Degraded';
+    const imageProcessingStatus = avgProcessingTime < 10 ? 'Operational' : 'Degraded';
+    const reportGenerationStatus = recentReportCount > 0 ? 'Operational' : 'Degraded';
+    
+    res.json({
+      aiModel: aiModelStatus,
+      imageProcessing: imageProcessingStatus,
+      reportGeneration: reportGenerationStatus
+    });
+  } catch (error) {
+    console.error('Error checking system status:', error);
+    res.status(500).json({ 
+      aiModel: 'Unknown',
+      imageProcessing: 'Unknown',
+      reportGeneration: 'Unknown'
+    });
+  }
+});
 
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {
