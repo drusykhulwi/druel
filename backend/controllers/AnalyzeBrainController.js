@@ -1,11 +1,11 @@
-// controllers/AnalyzeCerebellumController.js
+// controllers/AnalyzeBrainController.js
 const axios = require("axios");
 const FormData = require("form-data");
 const fs = require("fs");
 const scanService = require("../services/ScanService");
 const fileSystemService = require("../services/FileSystemService");
 
-exports.analyzeCerebellum = async (req, res) => {
+exports.analyzeBrainScan = async (req, res) => {
   try {
     // Check if we have all required data
     if (!req.file || !req.body.patientId || !req.body.gestationalAge) {
@@ -38,27 +38,23 @@ exports.analyzeCerebellum = async (req, res) => {
 
     // Send to Flask API
     const startTime = Date.now();
-    const response = await axios.post("http://127.0.0.1:4001/analyze-cerebellum", form, {
-      headers: form.getHeaders(),
+    const flaskResponse = await axios.post("http://127.0.0.1:4000/api/analyze-brain", form, {
+      headers: {
+        ...form.getHeaders(),
+      },
     });
     const processingTime = (Date.now() - startTime) / 1000; // Convert to seconds
 
     // Clean up temp file
     fs.unlinkSync(imagePath);
 
-    // Process the response data
-    const status = response.data.assessment.includes("normal") ? "normal" : "abnormal";
-    
+    // Add processing time to the response data
     const reportData = {
-      summary: response.data.assessment,
-      details: response.data.details,
-      status: status,
-      processing_time: processingTime,
-      confidence_score: 95, // Default confidence score
-      tcd_mm: response.data.tcd_mm
+      ...flaskResponse.data,
+      processing_time: processingTime
     };
 
-    // Save AI report to database
+    // Save AI report results to database
     const reportId = await scanService.saveAIReport(scanId, reportData);
 
     // In a real system, we would also save annotated images here
@@ -77,8 +73,14 @@ exports.analyzeCerebellum = async (req, res) => {
         imagePath: savedImage.relativePath
       }
     });
-  } catch (error) {
-    console.error("Cerebellum analysis failed:", error.message);
-    res.status(500).json({ success: false, error: "Cerebellum analysis failed." });
+
+  } catch (err) {
+    console.error("Error in brain scan analysis:", err.message);
+    // Log more details if available
+  if (err.response) {
+    console.error("Response data:", err.response.data);
+    console.error("Response status:", err.response.status);
+  }
+    res.status(500).json({ success: false, error: "Image analysis failed." });
   }
 };

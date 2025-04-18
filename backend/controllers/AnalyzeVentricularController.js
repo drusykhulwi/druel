@@ -1,11 +1,11 @@
-// controllers/AnalyzeCerebellumController.js
+// controllers/AnalyzeVentricularController.js
 const axios = require("axios");
 const FormData = require("form-data");
 const fs = require("fs");
 const scanService = require("../services/ScanService");
 const fileSystemService = require("../services/FileSystemService");
 
-exports.analyzeCerebellum = async (req, res) => {
+exports.analyzeVentricular = async (req, res) => {
   try {
     // Check if we have all required data
     if (!req.file || !req.body.patientId || !req.body.gestationalAge) {
@@ -38,7 +38,7 @@ exports.analyzeCerebellum = async (req, res) => {
 
     // Send to Flask API
     const startTime = Date.now();
-    const response = await axios.post("http://127.0.0.1:4001/analyze-cerebellum", form, {
+    const response = await axios.post("http://127.0.0.1:4002/analyze-ventricles", form, {
       headers: form.getHeaders(),
     });
     const processingTime = (Date.now() - startTime) / 1000; // Convert to seconds
@@ -47,15 +47,13 @@ exports.analyzeCerebellum = async (req, res) => {
     fs.unlinkSync(imagePath);
 
     // Process the response data
-    const status = response.data.assessment.includes("normal") ? "normal" : "abnormal";
-    
     const reportData = {
-      summary: response.data.assessment,
+      summary: response.data.summary,
       details: response.data.details,
-      status: status,
+      status: response.data.status,
       processing_time: processingTime,
       confidence_score: 95, // Default confidence score
-      tcd_mm: response.data.tcd_mm
+      lvw_mm: response.data.lvw_mm
     };
 
     // Save AI report to database
@@ -74,11 +72,12 @@ exports.analyzeCerebellum = async (req, res) => {
         scanId,
         imageId,
         reportId,
-        imagePath: savedImage.relativePath
+        imagePath: savedImage.relativePath,
+        recommendation: response.data.recommendation
       }
     });
   } catch (error) {
-    console.error("Cerebellum analysis failed:", error.message);
-    res.status(500).json({ success: false, error: "Cerebellum analysis failed." });
+    console.error("Ventricular analysis failed:", error.message);
+    res.status(500).json({ success: false, error: "Ventricular analysis failed." });
   }
 };
