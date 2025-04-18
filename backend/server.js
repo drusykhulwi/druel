@@ -7,6 +7,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -469,6 +470,56 @@ app.get('/api/system-status', async (req, res) => {
   }
 });
 
+
+// Create uploads directory if it doesn't exist
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Create storage directories if they don't exist
+const storageDir = path.join(__dirname, 'storage');
+const scanStorageDir = path.join(storageDir, 'scans');
+const annotationsStorageDir = path.join(storageDir, 'annotations');
+
+if (!fs.existsSync(storageDir)) {
+  fs.mkdirSync(storageDir, { recursive: true });
+}
+if (!fs.existsSync(scanStorageDir)) {
+  fs.mkdirSync(scanStorageDir, { recursive: true });
+}
+if (!fs.existsSync(annotationsStorageDir)) {
+  fs.mkdirSync(annotationsStorageDir, { recursive: true });
+}
+
+// Import routes
+const analyzeRoutes = require('./routes/AnalyzeRoutes');
+
+// Use routes
+app.use('/api', analyzeRoutes);
+
+// Serve static files from storage directory
+app.use('/storage', express.static(path.join(__dirname, 'storage')));
+
+// Error handling middleware for file uploads
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    // A Multer error occurred when uploading
+    return res.status(400).json({ 
+      success: false, 
+      error: `File upload error: ${err.message}` 
+    });
+  } else if (err) {
+    // An unknown error occurred
+    console.error('Server error:', err);
+    return res.status(500).json({ 
+      success: false, 
+      error: `Server error: ${err.message}` 
+    });
+  }
+  next();
+});
+
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {
   // Serve static files from the React app
@@ -485,3 +536,5 @@ if (process.env.NODE_ENV === 'production') {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = pool;
