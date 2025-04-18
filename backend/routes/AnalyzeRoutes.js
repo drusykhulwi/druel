@@ -2,47 +2,86 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
+const path = require("path");
 
-const { 
-  analyzeBrainScan, 
-  getPatientScans, 
-  getScanDetails 
-} = require("../controllers/AnalyzeController");
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
+});
 
-const { 
-  analyzeVentricular 
-} = require("../controllers/AnalyzeVentricularController");
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB max file size
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept only image files
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"), false);
+    }
+  },
+});
 
-const { 
-  analyzeCerebellum 
-} = require("../controllers/AnalyzeCerebellumController");
+// Import controllers
+const { analyzeBrainScan } = require("../controllers/AnalyzeBrainController");
+const { analyzeVentricular } = require("../controllers/AnalyzeVentricularController");
+const { analyzeCerebellum } = require("../controllers/AnalyzeCerebellumController");
 
-// Patient search and management
-router.get("/patients/search", async (req, res) => {
+// Brain analysis route
+router.post("/analyze-brain", upload.single("image"), analyzeBrainScan);
+
+// Cerebellum analysis route
+router.post("/analyze-cerebellum", upload.single("image"), analyzeCerebellum);
+
+// Ventricular analysis route
+router.post("/analyze-ventricular", upload.single("image"), analyzeVentricular);
+
+// Get scan results route
+router.get("/scans/:scanId", async (req, res) => {
   try {
-    const { name } = req.query;
-    if (!name) {
-      return res.status(400).json({ success: false, error: "Search term required" });
+    const scanId = req.params.scanId;
+    const scanService = require("../services/ScanService");
+    
+    const scanDetails = await scanService.getScanDetailsWithReports(scanId);
+    
+    if (!scanDetails) {
+      return res.status(404).json({ success: false, error: "Scan not found" });
     }
     
-    const PatientModel = require('../models/PatientModel');
-    const patients = await PatientModel.searchPatientsByName(name);
-    
-    res.json({ success: true, data: patients });
+    res.json({
+      success: true,
+      data: scanDetails
+    });
   } catch (error) {
-    console.error("Error searching patients:", error);
-    res.status(500).json({ success: false, error: "Failed to search patients" });
+    console.error("Error retrieving scan details:", error);
+    res.status(500).json({ success: false, error: "Failed to retrieve scan details" });
   }
 });
 
-// Patient scans
-router.get("/patients/:patientId/scans", getPatientScans);
-router.get("/scans/:scanId", getScanDetails);
-
-// AI Analysis endpoints
-router.post("/analyze", upload.single("image"), analyzeBrainScan);
-router.post("/analyze-ventricular", upload.single("image"), analyzeVentricular);
-router.post("/analyze-cerebellum", upload.single("image"), analyzeCerebellum);
+// Get patient scans route
+router.get("/patient-scans/:patientId", async (req, res) => {
+  try {
+    const patientId = req.params.patientId;
+    const scanService = require("../services/ScanService");
+    
+    const scans = await scanService.getPatientScans(patientId);
+    
+    res.json({
+      success: true,
+      data: scans
+    });
+  } catch (error) {
+    console.error("Error retrieving patient scans:", error);
+    res.status(500).json({ success: false, error: "Failed to retrieve patient scans" });
+  }
+});
 
 module.exports = router;

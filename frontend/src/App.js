@@ -33,6 +33,7 @@ function AppRoutes() {
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
       <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+      <Route path="/report/:scanId" element={<ProtectedRoute><Report /></ProtectedRoute>} />
       <Route path="/report" element={<ProtectedRoute><Report /></ProtectedRoute>} />
       <Route path="/patient" element={<ProtectedRoute><Patient /></ProtectedRoute>} />
       <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
