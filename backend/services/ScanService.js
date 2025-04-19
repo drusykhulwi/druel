@@ -3,15 +3,15 @@ const pool = require('../db');
 const fileSystemService = require('./FileSystemService');
 
 class ScanService {
-  async createScan(patientId, gestationalAge) {
+  async createScan(patientId, gestationalAge, scanDate = null, notes = null) {
     const connection = await pool.getConnection();
     try {
       await connection.beginTransaction();
       
-      // Insert the scan record
+      // Insert the scan record with notes
       const [scanResult] = await connection.execute(
-        'INSERT INTO scans (patient_id, scan_date, gestational_age) VALUES (?, CURDATE(), ?)',
-        [patientId, gestationalAge]
+        'INSERT INTO scans (patient_id, scan_date, gestational_age, notes) VALUES (?, IFNULL(?, CURDATE()), ?, ?)',
+        [patientId, scanDate, gestationalAge, notes]
       );
       
       const scanId = scanResult.insertId;
@@ -55,7 +55,7 @@ class ScanService {
         [
           scanId, 
           reportData.summary || reportData.details, 
-          reportData.confidence_score || 95, // Default confidence if not provided
+          reportData.confidence_score || 95, 
           reportData.image_quality || 'Good', 
           reportData.status === 'normal', 
           reportData.status === 'normal' ? 0 : 1,
@@ -66,7 +66,14 @@ class ScanService {
       const reportId = reportResult.insertId;
       
       // Insert detailed features if available
-      if (reportData.details) {
+      if (reportData.features && reportData.features.length > 0) {
+        for (const feature of reportData.features) {
+          await connection.execute(
+            'INSERT INTO detected_features (report_id, feature_name, feature_description, confidence_score) VALUES (?, ?, ?, ?)',
+            [reportId, feature.feature_name || 'Finding', feature.feature_description || feature, feature.confidence_score || 90]
+          );
+        }
+      } else if (reportData.details) {
         await connection.execute(
           'INSERT INTO detected_features (report_id, feature_name, feature_description, confidence_score) VALUES (?, ?, ?, ?)',
           [reportId, reportData.status === 'normal' ? 'Normal scan' : 'Abnormal finding', reportData.details, 90]
@@ -99,6 +106,22 @@ class ScanService {
     }
   }
 
+  async updateScanNotes(scanId, notes) {
+    const connection = await pool.getConnection();
+    try {
+      await connection.execute(
+        'UPDATE scans SET notes = ? WHERE scan_id = ?',
+        [notes, scanId]
+      );
+      
+      return true;
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+
   async getPatientScans(patientId) {
     const connection = await pool.getConnection();
     try {
@@ -107,6 +130,7 @@ class ScanService {
           s.scan_id,
           s.scan_date,
           s.gestational_age,
+          s.notes,
           ar.report_id,
           ar.primary_findings,
           ar.is_normal,
@@ -144,10 +168,11 @@ class ScanService {
           s.patient_id,
           s.scan_date,
           s.gestational_age,
+          s.notes,
           p.patient_name
         FROM 
           scans s
-        JOIN
+        LEFT JOIN
           patients p ON s.patient_id = p.patient_id
         WHERE 
           s.scan_id = ?
