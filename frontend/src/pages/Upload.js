@@ -81,14 +81,14 @@ export default function Upload() {
         case 'trans-thalamic':
           endpoint = 'http://localhost:5000/api/analyze-brain';
           break;
-          case 'trans-ventricular':
-            endpoint = 'http://localhost:5000/api/analyze-ventricular';
-            break;
-          case 'trans-cerebellum':
-            endpoint = 'http://localhost:5000/api/analyze-cerebellum';
-            break;
-          default:
-            endpoint = 'http://localhost:5000/api/analyze-brain';
+        case 'trans-ventricular':
+          endpoint = 'http://localhost:5000/api/analyze-ventricular';
+          break;
+        case 'trans-cerebellum':
+          endpoint = 'http://localhost:5000/api/analyze-cerebellum';
+          break;
+        default:
+          endpoint = 'http://localhost:5000/api/analyze-brain';
       }
 
       // Create form data
@@ -96,7 +96,7 @@ export default function Upload() {
       formData.append('image', actualFile);
       formData.append('patientId', patientId);
       formData.append('gestationalAge', gestationalAge);
-      if (notes) formData.append('notes', notes);
+      formData.append('notes', notes); // Always send notes, even if empty
       if (scanDate) formData.append('scanDate', scanDate);
 
       // Send to backend API
@@ -114,7 +114,13 @@ export default function Upload() {
       // On success, navigate to report page with scan ID
       navigate(`/report/${result.data.scanId}`, { 
         state: { 
-          analysisData: result.data,
+          analysisData: {
+            ...result.data,
+            patientId: patientId,
+            gestationalAge: gestationalAge,
+            scanDate: scanDate || new Date().toISOString().split('T')[0],
+            notes: notes
+          },
           planeType
         }
       });
