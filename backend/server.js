@@ -408,11 +408,18 @@ app.get('/api/recent-activities', async (req, res) => {
       // Calculate time ago
       const reportDate = new Date(activity.report_generated_date);
       const now = new Date();
-      const diffHours = Math.floor((now - reportDate) / (1000 * 60 * 60));
-      const timeAgo = diffHours > 24 
-        ? `${Math.floor(diffHours / 24)}d ago` 
-        : `${diffHours}h ago`;
-      
+      const diffMilliseconds = now - reportDate;
+
+      // Convert to hours with fractions
+      const diffHours = diffMilliseconds / (1000 * 60 * 60);
+
+      const timeAgo = diffHours > 24
+          ? `${Math.floor(diffHours / 24)}d ago`
+          : diffHours < 1
+              ? `${Math.max(1, Math.floor(diffHours * 60))}m ago` // Ensure at least "1m ago"
+              : `${Math.floor(diffHours)}h ago`;
+
+
       return {
         patientId: activity.patient_id,
         activity: 'Ultrasound Analysis Completed',
