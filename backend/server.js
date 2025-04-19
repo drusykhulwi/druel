@@ -8,6 +8,8 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
+const scanService = require('./services/ScanService');
+const router = express.Router();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -527,6 +529,29 @@ app.use((err, req, res, next) => {
   next();
 });
 
+router.put('/api/scans/:id/notes', async (req, res) => {
+  try {
+    const scanId = req.params.id;
+    const { notes } = req.body;
+    
+    if (!notes) {
+      return res.status(400).json({ error: 'Notes are required' });
+    }
+    
+    await scanService.updateScanNotes(scanId, notes);
+    
+    res.status(200).json({ 
+      success: true, 
+      message: 'Notes updated successfully' 
+    });
+  } catch (error) {
+    console.error('Error updating scan notes:', error);
+    res.status(500).json({ 
+      error: 'An error occurred while updating the notes' 
+    });
+  }
+});
+
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {
   // Serve static files from the React app
@@ -544,4 +569,6 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+module.exports = router;
 module.exports = pool;
+
