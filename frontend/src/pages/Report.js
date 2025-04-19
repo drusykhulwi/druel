@@ -58,6 +58,7 @@ const Report = () => {
       console.log("Formatted data:", formattedData);
       setReportData(formattedData);
       if (formattedData.notes) {
+        console.log("Setting initial notes:", formattedData.notes);
         setAdditionalNotes(formattedData.notes);
       }
       setIsLoading(false);
@@ -67,6 +68,7 @@ const Report = () => {
     } else {
       setError('No scan data available');
       setIsLoading(false);
+       console.log("Missing both analysisData and scanId");
     }
   }, [analysisData, scanId]);
 
@@ -210,9 +212,22 @@ const Report = () => {
 
   // Function to save additional notes
   const saveAdditionalNotes = async () => {
-    if (!scanId || !additionalNotes) return;
+    if (!scanId) {
+      alert('Cannot save notes for unsaved scans. Please save the scan first.');
+      return;
+    }
+    
+    if (!additionalNotes) {
+      console.log("No notes to save");
+      return;
+    }
+    if (!scanId || !additionalNotes) {
+      console.log("Missing scanId or notes:", { scanId, additionalNotes });
+      return;
+    }
     
     try {
+      console.log("Saving notes:", additionalNotes);
       const response = await fetch(`http://localhost:5000/api/scans/${scanId}/notes`, {
         method: 'PUT',
         headers: {
@@ -221,20 +236,27 @@ const Report = () => {
         body: JSON.stringify({ notes: additionalNotes }),
       });
       
+      console.log("Response status:", response.status);
+      
       if (!response.ok) {
-        throw new Error('Failed to save notes');
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
+        throw new Error(`Failed to save notes: ${response.status} ${errorText}`);
       }
       
       // Update local state
-      setReportData(prev => ({
-        ...prev,
-        notes: additionalNotes
-      }));
+      setReportData(prev => {
+        console.log("Updating report data with new notes");
+        return {
+          ...prev,
+          notes: additionalNotes
+        };
+      });
       
       alert('Notes saved successfully');
     } catch (err) {
       console.error('Error saving notes:', err);
-      alert('Failed to save notes. Please try again.');
+      alert(`Failed to save notes: ${err.message}`);
     }
   };
 
@@ -595,7 +617,10 @@ const Report = () => {
             className="w-full border border-gray-300 rounded p-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-druel-light-blue"
             placeholder="Add any additional notes or observations..."
             value={additionalNotes}
-            onChange={(e) => setAdditionalNotes(e.target.value)}
+            onChange={(e) => {
+              console.log("New notes value:", e.target.value);
+              setAdditionalNotes(e.target.value);
+            }}
           />
           <div className="flex justify-end mt-4">
             <button 
