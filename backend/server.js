@@ -456,7 +456,7 @@ app.get('/api/system-status', async (req, res) => {
     const [recentReports] = await pool.query(`
       SELECT COUNT(*) as count 
       FROM ai_reports 
-      WHERE report_generated_date >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+      WHERE report_generated_date >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
     `);
     
     const recentReportCount = recentReports[0].count || 0;
