@@ -7,6 +7,9 @@ const History = () => {
   const [selectedScan, setSelectedScan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
 
   // Fetch scan history on component mount
   useEffect(() => {
@@ -51,26 +54,45 @@ const History = () => {
   };
   
   // Helper function to get the correct image URL
-    const getImageUrl = (path) => {
-        if (!path) return null;
-        
-        // If path is already a full URL, return it
-        if (path.startsWith('http')) {
-            return path;
-        }
-        
-        // If path already has /storage/ prefix, use as is
-        if (path.startsWith('/storage/')) {
-            return `http://localhost:5000${path}`;
-        }
-        
-        // Otherwise, prepend the storage path
-        return `http://localhost:5000/storage/${path}`;
-        };
+  const getImageUrl = (path) => {
+    if (!path) return null;
+    
+    // If path is already a full URL, return it
+    if (path.startsWith('http')) {
+      return path;
+    }
+    
+    // If path already has /storage/ prefix, use as is
+    if (path.startsWith('/storage/')) {
+      return `http://localhost:5000${path}`;
+    }
+    
+    // Otherwise, prepend the storage path
+    return `http://localhost:5000/storage/${path}`;
+  };
   
   const handleSelectScan = (scan) => {
     if (scan.id !== selectedScan?.id) {
       fetchScanDetails(scan.id);
+    }
+  };
+
+  // Calculate pagination values
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = historyItems.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(historyItems.length / itemsPerPage);
+
+  // Handle page changes
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
     }
   };
 
@@ -244,9 +266,15 @@ const History = () => {
         )}
 
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Recent Scans</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Recent Scans</h2>
+            <div className="text-sm text-gray-600">
+              Page {currentPage} of {totalPages}
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {historyItems.map(item => (
+            {currentItems.map(item => (
               <div 
                 key={item.id}
                 onClick={() => handleSelectScan(item)}
@@ -268,7 +296,7 @@ const History = () => {
                 <div className="h-32 bg-gray-100 rounded mb-3 flex items-center justify-center">
                   {item.imagePath ? (
                     <img 
-                      src={getImageUrl(selectedScan.imagePath)}
+                      src={getImageUrl(item.imagePath)}
                       alt="Scan thumbnail"
                       className="max-h-full object-contain"
                     />
@@ -293,6 +321,54 @@ const History = () => {
               </div>
             ))}
           </div>
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-6">
+              <nav className="flex items-center">
+                <button 
+                  onClick={goToPreviousPage} 
+                  disabled={currentPage === 1}
+                  className={`px-3 py-1 rounded-l border ${
+                    currentPage === 1 
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  Previous
+                </button>
+                
+                {/* Page numbers */}
+                <div className="flex">
+                  {[...Array(totalPages)].map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentPage(index + 1)}
+                      className={`px-3 py-1 border-t border-b ${
+                        currentPage === index + 1
+                          ? 'bg-druel-blue text-white'
+                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                </div>
+                
+                <button 
+                  onClick={goToNextPage} 
+                  disabled={currentPage === totalPages}
+                  className={`px-3 py-1 rounded-r border ${
+                    currentPage === totalPages 
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  Next
+                </button>
+              </nav>
+            </div>
+          )}
         </div>
       </div>
     </div>
