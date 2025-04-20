@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from '../context/AuthContext'; 
 
 function SignupForm() {
   const [formData, setFormData] = useState({
@@ -12,6 +12,7 @@ function SignupForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { signup } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,32 +34,20 @@ function SignupForm() {
     }
     
     try {
-      const response = await axios.post('http://localhost:5000/api/signup', formData);
+      const result = await signup(formData);
       
-      if (response.data.success) {
-        // Store user info in localStorage (optional)
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        // Redirect to dashboard
+      if (result.success) {
         navigate('/dashboard');
+      } else {
+        setError(result.message || 'Signup failed. Please try again.');
       }
     } catch (error) {
-      setError(error.response?.data?.error || 'Signup failed. Please try again.');
+      setError('Signup failed. Please try again.');
       console.error('Signup error:', error);
     } finally {
       setLoading(false);
     }
 };  
-// const SignupForm = () => {
-//   const [username, setUsername] = useState('');
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const [confirmPassword, setConfirmPassword] = useState('');
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     console.log('Signup attempt with:', username, email, password);
-//     // Handle signup logic here
-//   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

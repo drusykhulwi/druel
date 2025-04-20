@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext'; 
 
 // Configure axios to include credentials with requests
 axios.defaults.withCredentials = true;
@@ -13,7 +14,8 @@ function LoginForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
+  const { login } = useAuth(); 
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -27,30 +29,21 @@ function LoginForm() {
     setError('');
     
     try {
-      const response = await axios.post('http://localhost:5000/api/login', formData);
+
+      const result = await login(formData.email, formData.password)
       
-      if (response.data.success) {
-        // Store user info in localStorage (optional, depending on your strategy)
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        // Redirect to dashboard
+      if (result.success) {
         navigate('/dashboard');
+      } else {
+        setError(result.message || 'Login failed. Please try again.');
       }
     } catch (error) {
-      setError(error.response?.data?.error || 'Login failed. Please try again.');
+      setError('Login failed. Please try again.');
       console.error('Login error:', error);
     } finally {
       setLoading(false);
     }
 };
-// const LoginForm = () => {
-//   const [username, setUsername] = useState('');
-//   const [password, setPassword] = useState('');
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     console.log('Login attempt with:', username, password);
-//     // Handle login logic here
-//   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
