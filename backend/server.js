@@ -11,9 +11,11 @@ const fs = require('fs');
 const scanService = require('./services/ScanService');
 const router = express.Router();
 
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 require('dotenv').config();
+const scanRoutes = require('./routes/ScanRoutes');
 
 // Middleware
 app.use(cors({
@@ -551,6 +553,9 @@ router.put('/api/scans/:id/notes', async (req, res) => {
     });
   }
 });
+
+//Scan Routes for the history
+app.use('/api/scan-history', scanRoutes);
 
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {
