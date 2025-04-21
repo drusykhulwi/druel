@@ -10,6 +10,7 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const scanService = require('./services/ScanService');
 const router = express.Router();
+const nodemailer = require('nodemailer');
 
 
 const app = express();
@@ -34,6 +35,7 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
+app.use(router);
 
 // MySQL Connection Pool
 const pool = mysql.createPool({
@@ -46,6 +48,20 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
+// Create a transporter object
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD
+  },
+  tls: {
+    ciphers: 'TLSv1.2'
+  },
+  connectionTimeout: 30000 // 30 seconds
+});
 // Test database connection
 app.get('/api/test', async (req, res) => {
   try {
@@ -217,6 +233,190 @@ app.post('/api/logout', (req, res) => {
     return res.json({ success: true, message: 'Logged out successfully' });
   });
 });
+
+// Password Reset Request
+app.post('/api/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+  
+  try {
+    const connection = await pool.getConnection();
+    
+    // Check if user exists
+    const [users] = await connection.execute(
+      'SELECT * FROM users WHERE email = ?',
+      [email]
+    );
+    
+    if (users.length === 0) {
+      connection.release();
+      // For security, don't reveal if email exists or not
+      return res.status(200).json({ 
+        success: true,
+        message: 'If your email is registered, you will receive a password reset link.' 
+      });
+    }
+    
+    const user = users[0];
+    
+    // Generate a reset token and expiration (24 hours from now)
+    const resetToken = uuidv4();
+    const resetExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    
+    // Save token to database
+    await connection.execute(
+      'UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?',
+      [resetToken, resetExpires, user.id]
+    );
+    
+    connection.release();
+    
+    // In a real application, I would send an email with the reset link
+    // For this example, I'll just return the token in the response
+    // In production, use a service like Nodemailer to send actual emails
+    console.log(`Reset link would be sent to ${email} with token: ${resetToken}`);
+    const emailSent = await sendPasswordResetEmail(email, resetToken);
+  
+    if (!emailSent) {
+      console.error(`Failed to send password reset email to ${email}`);
+      // Consider what to do if email fails - you might want to delete the token
+      // or notify an admin, but don't tell the user as it reveals account existence
+    }
+    
+    return res.status(200).json({ 
+      success: true,
+      message: 'If your email is registered, you will receive a password reset link.',
+      // Remove the token in production, only for development testing
+      token: resetToken 
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Email sending function
+const sendPasswordResetEmail = async (email, resetToken) => {
+  const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+  
+  const mailOptions = {
+    from: `"Your App Name" <${process.env.EMAIL_FROM}>`,
+    to: email,
+    subject: 'Password Reset Request',
+    html: `
+      <h1>Password Reset</h1>
+      <p>You requested a password reset. Click the link below to reset your password:</p>
+      <p><a href="${resetUrl}">Reset Password</a></p>
+      <p>This link will expire in 24 hours.</p>
+      <p>If you didn't request this, please ignore this email.</p>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Password reset email sent to ${email}`);
+    return true;
+  } catch (error) {
+    console.error('Email sending error:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code
+    });
+    return false;
+  }
+};
+
+// Verify Reset Token
+app.get('/api/reset-password/:token', async (req, res) => {
+  const { token } = req.params;
+  
+  try {
+    const connection = await pool.getConnection();
+    
+    // Check if token exists and is valid
+    const [users] = await connection.execute(
+      'SELECT * FROM users WHERE reset_token = ? AND reset_token_expires > NOW()',
+      [token]
+    );
+    
+    connection.release();
+    
+    if (users.length === 0) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Password reset token is invalid or has expired' 
+      });
+    }
+    
+    return res.status(200).json({ 
+      success: true,
+      message: 'Token is valid'
+    });
+  } catch (error) {
+    console.error('Reset token verification error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Reset Password
+app.post('/api/reset-password/:token', async (req, res) => {
+  const { token } = req.params;
+  const { password, confirmPassword } = req.body;
+  
+  // Validation
+  if (!password || !confirmPassword) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+  
+  if (password !== confirmPassword) {
+    return res.status(400).json({ error: 'Passwords do not match' });
+  }
+  
+  try {
+    const connection = await pool.getConnection();
+    
+    // Check if token exists and is valid
+    const [users] = await connection.execute(
+      'SELECT * FROM users WHERE reset_token = ? AND reset_token_expires > NOW()',
+      [token]
+    );
+    
+    if (users.length === 0) {
+      connection.release();
+      return res.status(400).json({ 
+        success: false,
+        message: 'Password reset token is invalid or has expired' 
+      });
+    }
+    
+    const user = users[0];
+    
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Update password and clear reset token
+    await connection.execute(
+      'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?',
+      [hashedPassword, user.id]
+    );
+    
+    connection.release();
+    
+    return res.status(200).json({ 
+      success: true,
+      message: 'Password has been reset successfully' 
+    });
+  } catch (error) {
+    console.error('Password reset error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
 
 // Get all patients with their latest scan
 app.get('/api/patients', async (req, res) => {
@@ -574,6 +774,5 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-module.exports = router;
-module.exports = pool;
+module.exports = app;
 
