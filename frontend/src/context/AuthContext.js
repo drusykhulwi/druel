@@ -94,6 +94,61 @@ export const AuthProvider = ({ children }) => {
       };
     }
   };
+  // Forgot Password function
+  const forgotPassword = async (email) => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/forgot-password', { email });
+      return { 
+        success: true,
+        message: response.data.message,
+        // In development, you might want to return the token
+        token: response.data.token
+      };
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.error || 'Failed to process password reset request'
+      };
+    }
+  };
+
+  // Verify reset token function
+  const verifyResetToken = async (token) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/reset-password/${token}`);
+      return { 
+        success: true,
+        message: response.data.message
+      };
+    } catch (error) {
+      console.error('Token verification error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.error || 'Invalid or expired token'
+      };
+    }
+  };
+
+  // Reset Password function
+  const resetPassword = async (token, password, confirmPassword) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/reset-password/${token}`, 
+        { password, confirmPassword }
+      );
+      return { 
+        success: true,
+        message: response.data.message
+      };
+    } catch (error) {
+      console.error('Password reset error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.error || 'Failed to reset password'
+      };
+    }
+  };
 
   const value = {
     currentUser,
@@ -101,7 +156,10 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     signup,
-    logout
+    logout,
+    forgotPassword,
+    verifyResetToken,
+    resetPassword
   };
 
   return (
