@@ -52,19 +52,19 @@ const ForgotPassword = () => {
         </div>
         
         {submitted ? (
-          <div className="rounded-md bg-druel-light-blue p-4">
+          <div className="rounded-md bg-white p-4">
             <div className="flex">
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-green-800">
+                <h3 className="text-sm font-medium text-druel-blue">
                   Email Sent
                 </h3>
-                <div className="mt-2 text-sm text-green-700">
+                <div className="mt-2 text-sm text-druel-blue">
                   <p>{message}</p>
                 </div>
                 <div className="mt-4">
                   <Link 
                     to="/login" 
-                    className="text-sm font-medium text-green-600 hover:text-green-500"
+                    className="text-sm font-medium text-druel-blue hover:text-green-500"
                   >
                     Back to login
                   </Link>
