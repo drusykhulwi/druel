@@ -52,7 +52,7 @@ const ForgotPassword = () => {
         </div>
         
         {submitted ? (
-          <div className="rounded-md bg-green-50 p-4">
+          <div className="rounded-md bg-druel-light-blue p-4">
             <div className="flex">
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-green-800">
@@ -107,7 +107,7 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-druel-blue hover:bg-druel-light-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
               >
                 {loading ? 'Processing...' : 'Send Reset Link'}
               </button>
@@ -116,7 +116,7 @@ const ForgotPassword = () => {
             <div className="text-sm text-center">
               <Link 
                 to="/login" 
-                className="font-medium text-indigo-600 hover:text-indigo-500"
+                className="font-medium text-druel-blue hover:text-druel-light-blue"
               >
                 Back to login
               </Link>
