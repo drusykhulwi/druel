@@ -47,8 +47,8 @@ exports.analyzeCerebellum = async (req, res) => {
     fs.unlinkSync(imagePath);
 
     // Process the response data
-    const status = response.data.assessment.includes("normal") ? "normal" : "abnormal";
-    
+    const status = response.data.assessment.toLowerCase().includes("abnormal") ? "abnormal" : "normal";
+
     const reportData = {
       summary: response.data.assessment,
       details: response.data.details,
