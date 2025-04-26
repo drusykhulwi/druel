@@ -347,7 +347,7 @@ const sendPasswordResetEmail = async (email, resetToken) => {
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
   
   const mailOptions = {
-    from: `"Your App Name" <${process.env.EMAIL_FROM}>`,
+    from: `"Druel App" <${process.env.GMAIL_USER}>`,
     to: email,
     subject: 'Password Reset Request',
     html: `
