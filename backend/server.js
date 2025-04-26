@@ -51,10 +51,15 @@ const pool = mysql.createPool({
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
+  secure: process.env.EMAIL_SECURE === 'true', 
   auth: {
     user: process.env.GMAIL_USER, 
     pass: process.env.GMAIL_APP_PASSWORD 
-  }
+  },
+  tls: {
+    ciphers: 'TLSv1.2'
+  },
+  connectionTimeout: 30000 // 30 seconds
 });
 // Test database connection
 app.get('/api/test', async (req, res) => {
@@ -191,6 +196,26 @@ app.get('/api/auth-status', (req, res) => {
 });
 
 // Get user data for dashboard
+
+app.get('/api/user', authenticateUser, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    const [users] = await connection.execute(
+      'SELECT id, username, email FROM users WHERE id = ?',
+      [req.session.userId]
+    );
+    connection.release();
+    
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    return res.status(200).json(users[0]);
+  } catch (error) {
+    console.error('Get user data error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
 // Password Reset Request 
 app.post('/api/forgot-password', async (req, res) => {
   const { email } = req.body;
