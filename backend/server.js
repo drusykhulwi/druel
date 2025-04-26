@@ -48,19 +48,13 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// Create a transporter object
+
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
+  service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
-  },
-  tls: {
-    ciphers: 'TLSv1.2'
-  },
-  connectionTimeout: 30000 // 30 seconds
+    user: process.env.GMAIL_USER, 
+    pass: process.env.GMAIL_APP_PASSWORD 
+  }
 });
 // Test database connection
 app.get('/api/test', async (req, res) => {
@@ -197,29 +191,79 @@ app.get('/api/auth-status', (req, res) => {
 });
 
 // Get user data for dashboard
-app.get('/api/user', authenticateUser, async (req, res) => {
+// Password Reset Request 
+app.post('/api/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+  
   try {
     const connection = await pool.getConnection();
-    const [rows] = await connection.execute(
-      'SELECT id, username, email, created_at FROM users WHERE id = ?', 
-      [req.session.userId]
-    );
-    connection.release();
     
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+    // Check if user exists
+    const [users] = await connection.execute(
+      'SELECT * FROM users WHERE email = ?',
+      [email]
+    );
+    
+    if (users.length === 0) {
+      connection.release();
+      // For security, don't reveal if email exists or not
+      return res.status(200).json({
+        success: true,
+        message: 'If your email is registered, you will receive a password reset link.'
+      });
     }
     
-    const user = rows[0];
-    return res.json({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      createdAt: user.created_at
-    });
+    const user = users[0];
+    
+    // Generate a reset token and expiration (24 hours from now)
+    const resetToken = uuidv4();
+    const resetExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    
+    // Save token to database
+    await connection.execute(
+      'UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?',
+      [resetToken, resetExpires, user.id]
+    );
+    
+    connection.release();
+    
+    console.log(`Reset link would be sent to ${email} with token: ${resetToken}`);
+    
+    try {
+      // Attempt to send the email
+      const emailSent = await sendPasswordResetEmail(email, resetToken);
+      
+      if (!emailSent) {
+        console.error(`Failed to send password reset email to ${email}`);
+        // Return an error to the frontend while maintaining security
+        return res.status(500).json({
+          success: false,
+          message: 'Unable to send reset email at this time. Please try again later.'
+        });
+      }
+      
+      return res.status(200).json({
+        success: true,
+        message: 'If your email is registered, you will receive a password reset link.'
+      });
+    } catch (emailError) {
+      console.error('Email sending error:', emailError);
+      // Return an error to the frontend while maintaining security
+      return res.status(500).json({
+        success: false,
+        message: 'Unable to send reset email at this time. Please try again later.'
+      });
+    }
   } catch (error) {
-    console.error('Get user error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Forgot password error:', error);
+    return res.status(500).json({ 
+      success: false,
+      error: 'Internal server error' 
+    });
   }
 });
 
