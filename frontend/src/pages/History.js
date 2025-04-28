@@ -4,9 +4,12 @@ import axios from 'axios';
 
 const History = () => {
   const [historyItems, setHistoryItems] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
   const [selectedScan, setSelectedScan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
@@ -19,9 +22,11 @@ const History = () => {
         const response = await axios.get('http://localhost:5000/api/scan-history/history');
         if (response.data.success && response.data.data.length > 0) {
           setHistoryItems(response.data.data);
+          setFilteredItems(response.data.data); // Set filtered items to all items initially
           setSelectedScan(response.data.data[0]); // Select the first scan by default
         } else {
           setHistoryItems([]);
+          setFilteredItems([]);
           setError('No scan history found');
         }
       } catch (err) {
@@ -34,6 +39,52 @@ const History = () => {
 
     fetchHistory();
   }, []);
+
+  // Handle search input changes
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      // If search is empty, reset to show all items
+      setFilteredItems(historyItems);
+      setCurrentPage(1);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  // Search function
+  const handleSearch = async () => {
+    if (searchTerm.trim() === '') return;
+
+    setSearchLoading(true);
+    
+    try {
+      // Make API call to search endpoint
+      const response = await axios.get(`http://localhost:5000/api/scan-history/search?term=${searchTerm}`);
+      
+      if (response.data && Array.isArray(response.data)) {
+        setFilteredItems(response.data);
+        // Reset to first page when searching
+        setCurrentPage(1);
+        
+        // Set first search result as selected scan if there are results
+        if (response.data.length > 0 && (!selectedScan || !response.data.some(item => item.id === selectedScan.id))) {
+          fetchScanDetails(response.data[0].id);
+        } else if (response.data.length === 0) {
+          setSelectedScan(null);
+        }
+      }
+    } catch (err) {
+      console.error('Error searching scans:', err);
+      // Keep showing existing items on search error
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
   // Fetch details for a specific scan
   const fetchScanDetails = async (scanId) => {
@@ -80,8 +131,9 @@ const History = () => {
   // Calculate pagination values
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = historyItems.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(historyItems.length / itemsPerPage);
+  // Use filteredItems instead of historyItems
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
   // Handle page changes
   const goToNextPage = () => {
@@ -93,6 +145,23 @@ const History = () => {
   const goToPreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Handle search input submit
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    handleSearch();
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchTerm('');
+    setFilteredItems(historyItems);
+    setCurrentPage(1);
+    // Select the first item from the original list if available
+    if (historyItems.length > 0) {
+      fetchScanDetails(historyItems[0].id);
     }
   };
 
@@ -141,9 +210,37 @@ const History = () => {
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Scan History</h1>
-          <button className="bg-druel-blue text-white px-4 py-2 rounded">
-            Generate Report
-          </button>
+          <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              className="pl-10 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-druel-blue focus:border-druel-blue"
+              placeholder="Search by patient ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <button 
+                type="button"
+                onClick={clearSearch}
+                className="absolute right-10 inset-y-0 flex items-center"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400 hover:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+            <button 
+              type="submit" 
+              className="ml-2 px-4 py-2 bg-druel-blue text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-druel-blue"
+            >
+              Search
+            </button>
+          </form>
         </div>
 
         {selectedScan && (
@@ -267,60 +364,78 @@ const History = () => {
 
         <div className="mt-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Recent Scans</h2>
+            <h2 className="text-xl font-semibold">
+              {searchTerm ? `Search Results: ${filteredItems.length} scan(s) found` : 'Recent Scans'}
+            </h2>
             <div className="text-sm text-gray-600">
-              Page {currentPage} of {totalPages}
+              Page {currentPage} of {totalPages || 1}
             </div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {currentItems.map(item => (
-              <div 
-                key={item.id}
-                onClick={() => handleSelectScan(item)}
-                className={`bg-white rounded-lg shadow p-4 cursor-pointer transform transition-transform hover:scale-105 ${
-                  selectedScan?.id === item.id ? 'ring-2 ring-druel-blue' : ''
-                }`}
+          {searchLoading ? (
+            <div className="flex justify-center py-8">
+              <p>Searching...</p>
+            </div>
+          ) : filteredItems.length === 0 ? (
+            <div className="bg-white rounded-lg shadow p-6 text-center">
+              <p className="text-lg">No scans matching your search.</p>
+              <button 
+                onClick={clearSearch}
+                className="mt-4 px-4 py-2 bg-druel-blue text-white rounded-md shadow-sm hover:bg-blue-600"
               >
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="font-semibold">{item.patientNumber}</h3>
-                    <p className="text-sm text-gray-600">{item.scanDate}</p>
+                Clear Search
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {currentItems.map(item => (
+                <div 
+                  key={item.id}
+                  onClick={() => handleSelectScan(item)}
+                  className={`bg-white rounded-lg shadow p-4 cursor-pointer transform transition-transform hover:scale-105 ${
+                    selectedScan?.id === item.id ? 'ring-2 ring-druel-blue' : ''
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="font-semibold">{item.patientNumber}</h3>
+                      <p className="text-sm text-gray-600">{item.scanDate}</p>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      item.status === "Normal" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                    }`}>
+                      {item.status}
+                    </div>
                   </div>
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    item.status === "Normal" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                  }`}>
-                    {item.status}
+                  <div className="h-32 bg-gray-100 rounded mb-3 flex items-center justify-center">
+                    {item.imagePath ? (
+                      <img 
+                        src={getImageUrl(item.imagePath)}
+                        alt="Scan thumbnail"
+                        className="max-h-full object-contain"
+                      />
+                    ) : (
+                      <img 
+                        src="/api/placeholder/200/150"
+                        alt="Scan thumbnail"
+                        className="max-h-full object-contain"
+                      />
+                    )}
+                  </div>
+                  <div className="text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Confidence:</span>
+                      <span>{item.confidence}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Abnormalities:</span>
+                      <span>{item.abnormalities}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="h-32 bg-gray-100 rounded mb-3 flex items-center justify-center">
-                  {item.imagePath ? (
-                    <img 
-                      src={getImageUrl(item.imagePath)}
-                      alt="Scan thumbnail"
-                      className="max-h-full object-contain"
-                    />
-                  ) : (
-                    <img 
-                      src="/api/placeholder/200/150"
-                      alt="Scan thumbnail"
-                      className="max-h-full object-contain"
-                    />
-                  )}
-                </div>
-                <div className="text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Confidence:</span>
-                    <span>{item.confidence}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Abnormalities:</span>
-                    <span>{item.abnormalities}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
           
           {/* Pagination Controls */}
           {totalPages > 1 && (
