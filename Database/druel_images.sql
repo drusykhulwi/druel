@@ -1,0 +1,55 @@
+-- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
+--
+-- Host: localhost    Database: druel
+-- ------------------------------------------------------
+-- Server version	8.0.40
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `images`
+--
+
+DROP TABLE IF EXISTS `images`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `images` (
+  `image_id` int NOT NULL AUTO_INCREMENT,
+  `scan_id` int NOT NULL,
+  `image_path` varchar(255) NOT NULL,
+  `upload_timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`image_id`),
+  KEY `scan_id` (`scan_id`),
+  CONSTRAINT `images_ibfk_1` FOREIGN KEY (`scan_id`) REFERENCES `scans` (`scan_id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `images`
+--
+
+LOCK TABLES `images` WRITE;
+/*!40000 ALTER TABLE `images` DISABLE KEYS */;
+INSERT INTO `images` VALUES (1,1,'/storage/scans/PAT123456_20250410_1.jpg','2025-04-14 14:25:32'),(2,2,'/storage/scans/P-56428_1744963421106.jpg','2025-04-18 08:03:41'),(3,3,'/storage/scans/P-56428_1744965842534.jpg','2025-04-18 08:44:02'),(4,4,'/storage/scans/P-56428_1744966371701.jpg','2025-04-18 08:52:51'),(5,5,'/storage/scans/P-56428_1744966951439.jpg','2025-04-18 09:02:31'),(6,6,'/storage/scans/P-56520_1744967101507.jpg','2025-04-18 09:05:01'),(7,7,'/storage/scans/P-56520_1744967677302.jpg','2025-04-18 09:14:37'),(8,8,'/storage/scans/P-56520_1744969453191.jpg','2025-04-18 09:44:13'),(9,9,'/storage/scans/P-56428_1744970703722.jpg','2025-04-18 10:05:03'),(10,10,'/storage/scans/P-50241_1744986535930.jpg','2025-04-18 14:28:55'),(11,11,'/storage/scans/P-56428_1744986784176.jpg','2025-04-18 14:33:04'),(12,12,'/storage/scans/P-50241_1744986864441.jpg','2025-04-18 14:34:24'),(13,13,'/storage/scans/P-50241_1744986877628.jpg','2025-04-18 14:34:37'),(14,14,'/storage/scans/P-50241_1744986978347.jpg','2025-04-18 14:36:18'),(15,15,'/storage/scans/P-56428_1744987023082.jpg','2025-04-18 14:37:03'),(16,16,'/storage/scans/P-56428_1744987035653.jpg','2025-04-18 14:37:15'),(17,17,'/storage/scans/P-56428_1744987498883.jpg','2025-04-18 14:44:58'),(18,18,'/storage/scans/P-56428_1744988255568.jpg','2025-04-18 14:57:35'),(19,19,'/storage/scans/P-56428_1744988284244.jpg','2025-04-18 14:58:04'),(20,20,'/storage/scans/P-50241_1744988439261.jpg','2025-04-18 15:00:39'),(21,21,'/storage/scans/P-50241_1744988471343.jpg','2025-04-18 15:01:11'),(22,22,'/storage/scans/P-50241_1744988781629.jpg','2025-04-18 15:06:21'),(23,23,'/storage/scans/P-56428_1744989134540.jpg','2025-04-18 15:12:14'),(24,24,'/storage/scans/P-56428_1744989238765.jpg','2025-04-18 15:13:58'),(25,25,'/storage/scans/P-56428_1745002095946.jpg','2025-04-18 18:48:15'),(26,26,'/storage/scans/P-50241_1745043550650.jpg','2025-04-19 06:19:10'),(27,27,'/storage/scans/P-50241_1745043673041.jpg','2025-04-19 06:21:13'),(28,28,'/storage/scans/P-56520_1745050264320.jpg','2025-04-19 08:11:04'),(29,29,'/storage/scans/P-56428_1745054855931.jpg','2025-04-19 09:27:35'),(30,30,'/storage/scans/P-56428_1745054927580.jpg','2025-04-19 09:28:47'),(31,31,'/storage/scans/P-56520_1745056155224.jpg','2025-04-19 09:49:15'),(32,32,'/storage/scans/P-56520_1745056168948.jpg','2025-04-19 09:49:28'),(33,33,'/storage/scans/P-56428_1745056516440.jpg','2025-04-19 09:55:16'),(34,34,'/storage/scans/P-56428_1745056550305.jpg','2025-04-19 09:55:50'),(35,35,'/storage/scans/P-50241_1745056623129.jpg','2025-04-19 09:57:03'),(36,36,'/storage/scans/P-56520_1745059670629.jpg','2025-04-19 10:47:50'),(37,37,'/storage/scans/P-56520_1745059751292.jpg','2025-04-19 10:49:11'),(38,38,'/storage/scans/P-56520_1745059811742.jpg','2025-04-19 10:50:11'),(39,39,'/storage/scans/P-56520_1745060373244.jpg','2025-04-19 10:59:33'),(40,40,'/storage/scans/P-56428_1745091729525.jpg','2025-04-19 19:42:09'),(41,41,'/storage/scans/P-56428_1745092299409.jpg','2025-04-19 19:51:39'),(42,42,'/storage/scans/P-21618_1745126178783.jpg','2025-04-20 05:16:18'),(43,43,'/storage/scans/P-21618_1745167151374.jpg','2025-04-20 16:39:11'),(44,44,'/storage/scans/P-56428_1745226304095.jpg','2025-04-21 09:05:04'),(45,45,'/storage/scans/P-56428_1745226327685.jpg','2025-04-21 09:05:27'),(46,46,'/storage/scans/P-50241_1745226420803.jpg','2025-04-21 09:07:00'),(47,47,'/storage/scans/P-56428_1745226497472.jpg','2025-04-21 09:08:17'),(48,48,'/storage/scans/P-21618_1745417800865.jpg','2025-04-23 14:16:40'),(49,49,'/storage/scans/P-56520_1745600377999.jpg','2025-04-25 16:59:38');
+/*!40000 ALTER TABLE `images` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2025-04-25 20:21:31
